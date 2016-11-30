@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-Rull for use this plugin:
-
-1) when user commits on github the commit message should include “rm_issue #(rm_issue_id)” and issue_id will be replace with the issue_id on redmine for which the commit is pushed. for eg : git commit -m “uesr signup - rm_issue #(3)”
-=======
 = github_commits
 
 Rule for use this plugin:
 
 1) when user commits on github the commit message should include “#rm123” and 123 will be replace with the issue_id on redmine for which the commit is pushed. for eg : git commit -m “uesr signup - #rm123”
->>>>>>> 278a524c215b5f1a0d3fd27bc3852d8bc6191e8b
 
 2) User who push commit on github has the same email address which is provided in redmine.
 
@@ -16,8 +10,4 @@ Rule for use this plugin:
 
 4) Github -> Repo setting –> webhook –> In event, select send me everything or you can select “Let me select individual events” and inside check the checkbox for commit event and than create web hook.
 
-<<<<<<< HEAD
 5) for repository webhook should be created with payload-url as “localhost:3000/github_commits/create_comment?project_id=test” where in url replace “localhost:3000” with your host address and replace “test” with the unique identifier of the project
-=======
-5) for repository webhook should be created with payload-url as “localhost:3000/github_commits/create_comment?project_id=test” where in url replace “localhost:3000” with your host address and replace “test” with the unique identifier of the project
->>>>>>> 278a524c215b5f1a0d3fd27bc3852d8bc6191e8b
