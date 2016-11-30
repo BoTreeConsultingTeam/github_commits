@@ -1,3 +1,5 @@
 # English strings go here for Rails i18n
 en:
   # my_label: "My label"
+  commit:
+    message: ! "\"%{author}\":%{github_url}%{author} has Commited On \"%{branch}\":%{github_url}%{author}/%{repository_name}/tree/%{branch} branch with message: *%{message}*  \"%{commit_id}\":%{commit_url}"

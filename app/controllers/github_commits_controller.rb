@@ -1,9 +1,11 @@
 class GithubCommitsController < ApplicationController
   unloadable
   skip_before_filter :verify_authenticity_token
+  GITHUB_URL = "https://github.com/"
 
   def create_comment
     if params[:commits].present? && verify_signature?
+      repository_name = params[:repository][:name]
       branch = params[:ref].split("/").last
       params[:commits].each do |last_commit|
         message = last_commit[:message]
@@ -15,7 +17,14 @@ class GithubCommitsController < ApplicationController
         user = email.present? ? email.user : User.where(admin: true).first
           
         if last_commit.present? && issue.present?
-          notes = "This User has Commited On #{branch} branch with message: *" + message + "*  \"#{last_commit[:id]}\":" + last_commit[:url]
+          author = last_commit[:author][:name]
+          notes = t('commit.message', author: author, 
+                                      repository_name: repository_name, 
+                                      github_url: GITHUB_URL, 
+                                      branch: branch, 
+                                      message: message, 
+                                      commit_id: last_commit[:id],
+                                      commit_url: last_commit[:url])
           issue.journals.create(journalized_id: issue_id, journalized_type: "Issue", user: user, notes: notes)
         end
       end
