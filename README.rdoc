@@ -1,16 +1,11 @@
-= github_commits
-
 Rull for use this plugin:
 
-1) when user commits on github the commit message should include "rm_issue #(rm_issue_id)" and issue_id will be replace with the issue_id on redmine for which the commit is pushed.
-for eg : git commit -m "uesr signup - rm_issue #(3)"
+1) when user commits on github the commit message should include “rm_issue #(rm_issue_id)” and issue_id will be replace with the issue_id on redmine for which the commit is pushed. for eg : git commit -m “uesr signup - rm_issue #(3)”
 
 2) User who push commit on github has the same email address which is provided in redmine.
 
-3)In application.rb, config the secret_token field , for eg:
-config.secret_token: 'enter your secret key for github authentication', Use the same token while creating webhook on github
+3)In application.rb, config the secret_token field , for eg: config.secret_token: 'enter your secret key for github authentication', Use the same token while creating webhook on github
 
-4) Github -> Repo setting --> webhook --> In event, select send me everything or you can select "Let me select individual events" and inside check the checkbox for commit event and than create web hook.
+4) Github -> Repo setting –> webhook –> In event, select send me everything or you can select “Let me select individual events” and inside check the checkbox for commit event and than create web hook.
 
-5) for repository webhook should be created with payload-url as "http://localhost:3000/github_commits/create_comment?project_id=test" where in url replace "http://localhost:3000" with your host address and replace "test" with the unique identifier of the project
-
+5) for repository webhook should be created with payload-url as “localhost:3000/github_commits/create_comment?project_id=test” where in url replace “localhost:3000” with your host address and replace “test” with the unique identifier of the project
