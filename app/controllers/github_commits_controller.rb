@@ -1,6 +1,6 @@
 class GithubCommitsController < ApplicationController
   unloadable
-  skip_before_filter :verify_authenticity_token
+  skip_before_filter [:verify_authenticity_token, :check_if_login_required]
   GITHUB_URL = "https://github.com/"
 
   def create_comment
