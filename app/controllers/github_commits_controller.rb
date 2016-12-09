@@ -29,7 +29,9 @@ class GithubCommitsController < ApplicationController
         end
       end
     end
-    render nothing: true, status: :ok
+    respond_to do |format|
+      format.json { render json: {nothing: true}, status: :ok }
+    end
   end
 
   def verify_signature?
