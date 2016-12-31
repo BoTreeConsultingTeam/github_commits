@@ -24,8 +24,6 @@ class GithubCommitsController < ApplicationController
           if last_commit.present? && issue.present?
             author = last_commit[:author][:name]
             notes = t('commit.message', author: author, 
-                                        repository_name: repository_name, 
-                                        github_url: GITHUB_URL, 
                                         branch: branch, 
                                         message: message, 
                                         commit_id: last_commit[:id],
