@@ -2,4 +2,4 @@
 en:
   # my_label: "My label"
   commit:
-    message: ! "\"%{author}\":%{github_url}%{author} has Commited On \"%{branch}\":%{github_url}%{author}/%{repository_name}/tree/%{branch} branch with message: *%{message}*  \"%{commit_id}\":%{commit_url}"
+    message: ! "__Github Commit__ - __%{author}__ has commited on __%{branch}__ branch with message: __%{message}__ , [%{commit_id}](%{commit_url})"
