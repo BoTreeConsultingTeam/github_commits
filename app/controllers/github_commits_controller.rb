@@ -12,7 +12,7 @@ class GithubCommitsController < ApplicationController
   REDMINE_ISSUE_NUMBER_PREFIX = "#rm"
 
   def create_comment
-    
+    resp_json = nil
     if params[:commits].present?
       
       repository_name = params[:repository][:name]
