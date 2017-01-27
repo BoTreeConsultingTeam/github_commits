@@ -6,7 +6,7 @@ This plugin adds a comment in redmine issue whenever user commits to github with
 
 1. When user commits on github, the commit message should include `#rm123` where `123` should be the issue_id in redmine for which the commit is pushed. for eg : `git commit -m 'user signup - #rm123'`
 
-2. User who pushes commit on github, should have the same email address which is used as redmine user also. It will add comment on behal of the original user or admin user.
+2. User who pushes commit on github, should have the same email address which is used as redmine user also. It will add comment on behalf of the original user or admin user.
 
 3. Configure the environment variable `GITHUB_SECRET_TOKEN` when you run Redmine and also use the same token while creating a webhook on github.
 
