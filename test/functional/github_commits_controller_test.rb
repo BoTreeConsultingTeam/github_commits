@@ -3,10 +3,11 @@ require 'json'
 
 class GithubCommitsControllerTest < ActionController::TestCase
   # Replace this with your real tests.
-  fixtures :users, :email_addresses
+  fixtures :users, :email_addresses, :issues, :projects
 
   def test_create_comment_without_hmac_signature_header
-    hmac_header(invalid_body)
+    @request.headers['CONTENT_TYPE'] = 'application/json'
+    @request.headers['HTTP_ACCEPT'] = 'application/json'
     assert_no_difference('Journal.count') do 
       post :create_comment, invalid_body
     end
@@ -14,7 +15,7 @@ class GithubCommitsControllerTest < ActionController::TestCase
   end
 
   def test_create_comment_without_commit_data
-    hmac_header(invalid_body)
+    set_required_headers(invalid_body)
     assert_no_difference('Journal.count') do 
       post :create_comment,invalid_body
     end
@@ -25,7 +26,7 @@ class GithubCommitsControllerTest < ActionController::TestCase
   def test_create_comment_without_issue_number
     new_valid_body = valid_body
     new_valid_body[:commits][0][:message] = "Without issue number"
-    hmac_header(new_valid_body)
+    set_required_headers(new_valid_body)
     assert_no_difference('Journal.count') do 
       post :create_comment,new_valid_body
     end
@@ -36,7 +37,7 @@ class GithubCommitsControllerTest < ActionController::TestCase
   def test_create_comment_with_invalid_issue_number
     new_valid_body = valid_body
     new_valid_body[:commits][0][:message] = "invalid issue number #rm89070"
-    hmac_header(new_valid_body)
+    set_required_headers(new_valid_body)
     assert_no_difference('Journal.count') do 
       post :create_comment,new_valid_body
     end
@@ -47,7 +48,18 @@ class GithubCommitsControllerTest < ActionController::TestCase
   def test_create_comment_with_empty_issue_number
     new_valid_body = valid_body()
     new_valid_body[:commits][0][:message] = "empty issue number #rm fgfg"
-    hmac_header(new_valid_body)
+    set_required_headers(new_valid_body)
+    assert_no_difference('Journal.count') do 
+      post :create_comment,new_valid_body
+    end
+    assert_response :success
+    assert_equal JSON.parse(@response.body)['error'], I18n.translate('lables.no_issue_found')
+  end
+
+  def test_create_comment_with_text_as_issue_number
+    new_valid_body = valid_body()
+    new_valid_body[:commits][0][:message] = "empty issue number #rmfgfg"
+    set_required_headers(new_valid_body)
     assert_no_difference('Journal.count') do 
       post :create_comment,new_valid_body
     end
@@ -58,26 +70,26 @@ class GithubCommitsControllerTest < ActionController::TestCase
   def test_create_comment_with_existing_user_email
     new_valid_body = valid_body
     new_valid_body[:commits][0][:author][:email] = email_addresses(:email_address_002).address
-    hmac_header(new_valid_body)
+    set_required_headers(new_valid_body)
     assert_difference('Journal.count') do 
       post :create_comment,new_valid_body
     end
     assert_response :success
     assert_equal JSON.parse(@response.body)['success'], true
-    comment = Comment.last
-    assert_equal comment.user.email, users(:users_002).email
+    comment = Journal.last
+    assert_equal comment.user.mail, users(:users_002).mail
     assert comment.notes.include?(valid_body[:commits][0][:message]), "Should have created comment with passed message"
   end
 
   def test_create_comment_without_existing_user_email
-    hmac_header(valid_body)
+    set_required_headers(valid_body)
     assert_difference('Journal.count') do 
       post :create_comment,valid_body
     end
     assert_response :success
     assert_equal JSON.parse(@response.body)['success'], true
-    comment = Comment.last
-    assert_equal comment.user.email, users(:users_001).email
+    comment = Journal.last
+    assert_equal comment.user.mail, users(:users_001).mail
     assert comment.notes.include?(valid_body[:commits][0][:message]), "Should have created comment with passed message"
   end
 
@@ -87,7 +99,7 @@ class GithubCommitsControllerTest < ActionController::TestCase
     {}
   end
 
-  def hmac_header(params)
+  def set_required_headers(params)
     @request.headers['HTTP_X_HUB_SIGNATURE'] = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 
                                                               Rails.configuration.secret_token, 
                                                               params.to_query
@@ -111,7 +123,7 @@ class GithubCommitsControllerTest < ActionController::TestCase
           "id": "zs809g8zsdv098sd0fizsd09f80adgkzdsnv8ew",
           "tree_id": "q983ruaweoifae09rufsd0cjkZXcDzsdgsdv2czdif",
           "distinct": true,
-          message: "#rm123 - Doing something",
+          message: "#rm#{issues(:issues_001).id} - Doing something",
           "timestamp": "2017-01-26T16:15:38+05:30",
           "url": "https://github.com/redmine/redmine/commit/349587309rfusd09f7szd0fv8uzsd8duf",
           author: {
