@@ -101,9 +101,9 @@ class GithubCommitsControllerTest < ActionController::TestCase
 
   def set_required_headers(params)
     @request.headers['HTTP_X_HUB_SIGNATURE'] = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 
-                                                              Rails.configuration.secret_token, 
+                                                              ENV["GITHUB_SECRET_TOKEN"], 
                                                               params.to_query
-                                                             )
+                                                             ) if ENV["GITHUB_SECRET_TOKEN"].present?
     @request.headers['CONTENT_TYPE'] = 'application/json'
     @request.headers['HTTP_ACCEPT'] = 'application/json'
   end

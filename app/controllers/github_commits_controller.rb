@@ -61,10 +61,13 @@ class GithubCommitsController < ApplicationController
   end
 
   def verify_signature?
-    request.body.rewind
-    render json: {success: false},status: 500 and return false unless request.env['HTTP_X_HUB_SIGNATURE'].present?
-    payload_body = request.body.read
-    signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), Rails.configuration.secret_token, payload_body)
-    render json: {success: false},status: 500 unless Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
+    if request.env['HTTP_X_HUB_SIGNATURE'].blank? || ENV["GITHUB_SECRET_TOKEN"].blank?
+      render json: {success: false},status: 500
+    else
+      request.body.rewind
+      payload_body = request.body.read
+      signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), ENV["GITHUB_SECRET_TOKEN"], payload_body)
+      render json: {success: false},status: 500 unless Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
+    end
   end
 end
