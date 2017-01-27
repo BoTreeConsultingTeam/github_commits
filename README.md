@@ -13,3 +13,5 @@ This plugin adds a comment in redmine issue whenever user commits to github with
 4. Github -> Repo setting –> webhook –> In event, select "send me everything" or you can select "Let me select individual events" and inside check the checkbox for commit event and then create web hook.
 
 5. For repository, webhook should be created with payload-url as `localhost:3000/github_commits/create_comment` where in url replace `localhost:3000` with your host address.
+
+6. In Redmine, Go to Administration -> Settings -> General Tab and change text formatting to `Markdown`. This will show the comment message properly.
