@@ -22,8 +22,8 @@ class GithubCommitsController < ApplicationController
         message = last_commit[:message]
 
         if message.present? && is_commit_to_be_tracked?(last_commit)         
-            issue_id = message.partition(REDMINE_ISSUE_NUMBER_PREFIX).last.split(" ").first.to_i
-            issue = Issue.find_by(id: issue_id)
+          issue_id = message.partition(REDMINE_ISSUE_NUMBER_PREFIX).last.split(" ").first.to_i
+          issue = Issue.find_by(id: issue_id)
         end
 
         if last_commit.present? && issue.present?
