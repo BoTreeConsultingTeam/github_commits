@@ -93,6 +93,18 @@ class GithubCommitsControllerTest < ActionController::TestCase
     assert comment.notes.include?(valid_body[:commits][0][:message]), "Should have created comment with passed message"
   end
 
+  def test_create_comment_with_duplicate_commit
+    new_valid_body = valid_body
+    new_valid_body[:commits][0][:distinct] = false
+    set_required_headers(new_valid_body)
+    assert_no_difference('Journal.count') do 
+      post :create_comment, new_valid_body
+    end
+
+    assert_response :success
+    assert_equal JSON.parse(@response.body)['error'], I18n.translate('lables.no_issue_found')
+  end
+
   private
 
   def invalid_body

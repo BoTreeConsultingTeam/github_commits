@@ -20,10 +20,10 @@ class GithubCommitsController < ApplicationController
       
       params[:commits].each do |last_commit|
         message = last_commit[:message]
-        
-        if message.present? && message.include?(REDMINE_ISSUE_NUMBER_PREFIX)
-          issue_id = message.partition(REDMINE_ISSUE_NUMBER_PREFIX).last.split(" ").first.to_i
-          issue = Issue.find_by(id: issue_id)
+
+        if message.present? && is_commit_to_be_tracked?(last_commit)         
+            issue_id = message.partition(REDMINE_ISSUE_NUMBER_PREFIX).last.split(" ").first.to_i
+            issue = Issue.find_by(id: issue_id)
         end
 
         if last_commit.present? && issue.present?
@@ -69,5 +69,12 @@ class GithubCommitsController < ApplicationController
       signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), ENV["GITHUB_SECRET_TOKEN"], payload_body)
       render json: {success: false},status: 500 unless Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
     end
+  end
+
+  private
+
+  def is_commit_to_be_tracked?(commit_obj)
+    commit_obj[:distinct] == true &&  #is it a fresh commit ?
+    commit_obj[:message].include?(REDMINE_ISSUE_NUMBER_PREFIX) #Does it include the redmine issue prefix string pattern?
   end
 end
