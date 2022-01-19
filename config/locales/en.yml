@@ -3,5 +3,7 @@ en:
   lables:
     no_commit_data_found: "Request does not have commit data."
     no_issue_found: "Issue not found."
+    no_pr_found: "Request does not have PR data."
+    no_update: "status was not updated for missing requirements."
   commit:
     message: ! "__Github Commit__ - __%{author}__ has commited on __%{branch}__ branch with message: __%{message}__ , [%{commit_id}](%{commit_url})"

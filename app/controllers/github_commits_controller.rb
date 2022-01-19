@@ -11,6 +11,38 @@ class GithubCommitsController < ApplicationController
   REDMINE_JOURNALIZED_TYPE = "Issue"
   REDMINE_ISSUE_NUMBER_PREFIX = "#rm"
 
+  #added JPBD Jan2022
+  def github_change_notification
+    resp_json = nil
+    # if payload contains pr and action is opened (new pr)
+    if params[:pull_request].present? && params[:action] == "opened"
+      
+      #get issue ID
+      pr_title = params[:pull_request][:title]
+      issue_id = pr_title.partition(REDMINE_ISSUE_NUMBER_PREFIX).last.split(" ").first.to_i
+      issue = Issue.find_by(id: issue_id)
+      
+      #if issue id exists in redmine & status is in progress (2)
+      if issue.present? && issue.status_id == 2
+        issue.status = 14 #jenkins validation
+        resp_json = {success: true}
+      else
+        resp_json = {success: false, error: t('lables.no_pr_found') }
+      end
+
+      resp_json = {success: true}
+    else # if not a pr payload
+      resp_json = {success: false, error: t('lables.no_update') }
+    end
+
+    respond_to do |format|
+      format.json { render json: resp_json, status: :ok }
+    end
+
+  end
+  # --
+
+
   def create_comment
     resp_json = nil
     if params[:commits].present?
