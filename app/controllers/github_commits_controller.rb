@@ -15,16 +15,18 @@ class GithubCommitsController < ApplicationController
   def github_change_notification
     resp_json = nil
     # if payload contains pr and action is opened (new pr)
-    if params[:pull_request].present? && params[:action] == "opened"
-      
+    if params[:pull_request].present? && params[:pull_request][:state] == "open"
       #get issue ID
       pr_title = params[:pull_request][:title]
       issue_id = pr_title.partition(REDMINE_ISSUE_NUMBER_PREFIX).last.split(" ").first.to_i
       issue = Issue.find_by(id: issue_id)
-      
       #if issue id exists in redmine & status is in progress (2)
       if issue.present? && issue.status_id == 2
-        issue.status = 14 #jenkins validation
+        #we are using status id 14 for "jenkins validation" which we created.
+        #you can easily adapt this plugin to your need by changing 
+        #the "from" status id in the previous if conditional statement and 
+        #the "to" status id in next line update statement
+        issue.update(status_id: 14) #jenkins validation
         resp_json = {success: true}
       else
         resp_json = {success: false, error: t('lables.no_pr_found') }
@@ -40,8 +42,6 @@ class GithubCommitsController < ApplicationController
     end
 
   end
-  # --
-
 
   def create_comment
     resp_json = nil
