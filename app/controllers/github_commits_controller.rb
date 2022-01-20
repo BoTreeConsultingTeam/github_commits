@@ -20,13 +20,18 @@ class GithubCommitsController < ApplicationController
       pr_title = params[:pull_request][:title]
       issue_id = pr_title.partition(REDMINE_ISSUE_NUMBER_PREFIX).last.split(" ").first.to_i
       issue = Issue.find_by(id: issue_id)
+      #use env var if defined, else use default
+      currentstate = ENV["CURRENT_REDMINE_STATE"]
+      if currentstate.nil?
+        currentstate = 2 #default for in progress
+      end
+      nextstate = ENV["NEXT_REDMINE_STATE"]
+      if nextstate.nil?
+        nextstate = 3 #default for in review
+      end
       #if issue id exists in redmine & status is in progress (2)
-      if issue.present? && issue.status_id == 2
-        #we are using status id 14 for "jenkins validation" which we created.
-        #you can easily adapt this plugin to your need by changing 
-        #the "from" status id in the previous if conditional statement and 
-        #the "to" status id in next line update statement
-        issue.update(status_id: 14) #jenkins validation
+      if issue.present? && issue.status_id == currentstate.to_i
+        issue.update(status_id: nextstate.to_i)
         resp_json = {success: true}
       else
         resp_json = {success: false, error: t('lables.no_pr_found') }
