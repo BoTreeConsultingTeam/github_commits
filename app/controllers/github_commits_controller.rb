@@ -11,6 +11,42 @@ class GithubCommitsController < ApplicationController
   REDMINE_JOURNALIZED_TYPE = "Issue"
   REDMINE_ISSUE_NUMBER_PREFIX = "#rm"
 
+  #added JPBD Jan2022
+  def github_change_notification
+    resp_json = nil
+    # if payload contains pr and action is opened (new pr)
+    if params[:pull_request].present? && params[:pull_request][:state] == "open"
+      #get issue ID
+      pr_title = params[:pull_request][:title]
+      issue_id = pr_title.partition(REDMINE_ISSUE_NUMBER_PREFIX).last.split(" ").first.to_i
+      issue = Issue.find_by(id: issue_id)
+      #use env var if defined, else fails
+      if ENV["CURRENT_REDMINE_STATE"].nil? or ENV["NEXT_REDMINE_STATE"].nil?
+        Rails.logger.info "Environment variables are wrong. Will not do anything."
+        resp_json = {success: false, error: t('lables.env_var_missing') }
+      else
+        #if issue id exists in redmine & status is matching currentstate integer (status code)
+        if issue.present? && issue.status_id == ENV["CURRENT_REDMINE_STATE"].to_i
+          issue.update(status_id: ENV["NEXT_REDMINE_STATE"].to_i)
+          resp_json = {success: true}
+        else
+          Rails.logger.info "Could not update issue " + issue_id.to_s + "."
+          resp_json = {success: false, error: t('lables.no_update') }
+        end
+
+      end
+
+    else # if not a pr payload
+      resp_json = {success: false, error: t('lables.no_pr_found') }
+    end
+
+    respond_to do |format|
+      format.json { render json: resp_json, status: :ok }
+    end
+
+  end
+
+
   def create_comment
     resp_json = nil
     if params[:commits].present?
