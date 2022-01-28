@@ -22,7 +22,7 @@ class GithubCommitsController < ApplicationController
       issue = Issue.find_by(id: issue_id)
       #use env var if defined, else fails
       if ENV["CURRENT_REDMINE_STATE"].nil? or ENV["NEXT_REDMINE_STATE"].nil?
-        Rails.logger.info "Environment variable wrong. Will not do anything."
+        Rails.logger.info "Environment variables are wrong. Will not do anything."
         resp_json = {success: false, error: t('lables.env_var_missing') }
       else
         #if issue id exists in redmine & status is matching currentstate integer (status code)
