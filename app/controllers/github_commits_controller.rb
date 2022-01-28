@@ -20,26 +20,25 @@ class GithubCommitsController < ApplicationController
       pr_title = params[:pull_request][:title]
       issue_id = pr_title.partition(REDMINE_ISSUE_NUMBER_PREFIX).last.split(" ").first.to_i
       issue = Issue.find_by(id: issue_id)
-      #use env var if defined, else use default
-      currentstate = ENV["CURRENT_REDMINE_STATE"]
-      if currentstate.nil?
-        currentstate = 2 #default for in progress
-      end
-      nextstate = ENV["NEXT_REDMINE_STATE"]
-      if nextstate.nil?
-        nextstate = 3 #default for in review
-      end
-      #if issue id exists in redmine & status is in progress (2)
-      if issue.present? && issue.status_id == currentstate.to_i
-        issue.update(status_id: nextstate.to_i)
-        resp_json = {success: true}
+      #use env var if defined, else fails
+      if ENV["CURRENT_REDMINE_STATE"].nil? or ENV["NEXT_REDMINE_STATE"].nil?
+        Rails.logger.info "Environment variable missing. Will not do anything."
+        Rails.logger.info "You must set an integer value for Both env var CURRENT_REDMINE_STATE and NEXT_REDMINE_STATE."
+        resp_json = {success: false, error: t('lables.env_var_missing') }
       else
-        resp_json = {success: false, error: t('lables.no_pr_found') }
+        #if issue id exists in redmine & status is matching currentstate integer (status code)
+        if issue.present? && issue.status_id == ENV["CURRENT_REDMINE_STATE"].to_i
+          issue.update(status_id: ENV["NEXT_REDMINE_STATE"].to_i)
+          resp_json = {success: true}
+        else
+          Rails.logger.info "Could not update issue " + issue_id.to_s + " with given ENV vars. Is the issue number correct and are ENV var both integers?"
+          resp_json = {success: false, error: t('lables.no_update') }
+        end
+
       end
 
-      resp_json = {success: true}
     else # if not a pr payload
-      resp_json = {success: false, error: t('lables.no_update') }
+      resp_json = {success: false, error: t('lables.no_pr_found') }
     end
 
     respond_to do |format|
@@ -47,6 +46,7 @@ class GithubCommitsController < ApplicationController
     end
 
   end
+
 
   def create_comment
     resp_json = nil

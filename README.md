@@ -15,3 +15,11 @@ This plugin adds a comment in redmine issue whenever user commits to github with
 5. For repository, webhook should be created with payload-url as `localhost:3000/github_commits/create_comment.json` where in url replace `localhost:3000` with your host address.
 
 6. In Redmine, Go to Administration -> Settings -> General Tab and change text formatting to `Markdown`. This will show the comment message properly.
+
+## Steps to use second feature (github change notification) which moves issues when there is a PR
+
+1. Create webhook like previous feature but with `/github_commits/github_change_notification.json` as URL. Send Pull Request only.
+
+2. Set ENV Variables like when you did for `GITHUB_SECRET_TOKEN` but for `CURRENT_REDMINE_STATE` (single integer) and `NEXT_REDMINE_STATE` (single integer).
+
+3. When doing a PR add `#rmXXX` like previous in the title to point which redmine ticket number must be automatically updated.
